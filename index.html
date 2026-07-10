@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simply Clean — Test Lab (#1 vs #3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bark:#3D2B1F; --cream:#FAF6F1; --sage:#4A5D4E; --honey:#C8A26E;
+    --sage-soft:#eef0ec; --honey-soft:#f6ede0; --line:#e4dccf; --muted:#7a6a5c;
+    --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--bark);font-family:var(--sans);line-height:1.6;font-size:16px}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.15;margin:0 0 .4em}
+  h1{font-size:2.5rem}h2{font-size:1.9rem}h3{font-size:1.3rem}
+  p{margin:0 0 1em}
+  a{color:var(--sage)}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px 80px}
+
+  header.top{background:var(--bark);color:var(--cream);padding:28px 20px 20px;text-align:center}
+  header.top h1{color:var(--cream);margin-bottom:.15em}
+  header.top .tag{font-family:var(--serif);font-size:1.15rem;color:var(--honey);letter-spacing:.02em}
+
+  nav{position:sticky;top:0;z-index:20;background:var(--cream);border-bottom:1px solid var(--line);
+      display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:10px}
+  nav button{font-family:var(--sans);font-weight:600;font-size:.83rem;letter-spacing:.02em;
+      border:1px solid var(--line);background:#fff;color:var(--bark);padding:9px 14px;border-radius:999px;cursor:pointer;transition:.15s}
+  nav button:hover{border-color:var(--honey)}
+  nav button.active{background:var(--bark);color:var(--cream);border-color:var(--bark)}
+
+  section.tab{display:none;padding-top:26px}
+  section.tab.show{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:0 0 18px}
+  .card.sage{border-left:5px solid var(--sage)}
+  .card.honey{border-left:5px solid var(--honey)}
+  .pill{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+        padding:3px 10px;border-radius:999px;vertical-align:middle}
+  .pill.sage{background:var(--sage-soft);color:var(--sage)}
+  .pill.honey{background:var(--honey-soft);color:#96682f}
+  .pill.grey{background:#eee6da;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-size:.92rem}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--sans);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  td.win-1{color:var(--sage);font-weight:600}
+  td.win-3{color:#96682f;font-weight:600}
+
+  .recipe{background:var(--cream);border:1px dashed var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .recipe h4{font-family:var(--serif);font-size:1.15rem;margin:0 0 8px}
+  .recipe ul{margin:0;padding-left:0;list-style:none}
+  .recipe li{padding:5px 0;border-bottom:1px dotted var(--line);display:flex;justify-content:space-between;gap:12px}
+  .recipe li:last-child{border-bottom:none}
+  .recipe li .amt{font-weight:600;white-space:nowrap;color:var(--sage)}
+
+  ul.check{list-style:none;padding:0;margin:8px 0}
+  ul.check li{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+  ul.check li:last-child{border-bottom:none}
+  ul.check input[type=checkbox]{appearance:none;-webkit-appearance:none;min-width:22px;height:22px;margin-top:2px;
+      border:2px solid var(--honey);border-radius:6px;cursor:pointer;position:relative;flex-shrink:0}
+  ul.check input[type=checkbox]:checked{background:var(--sage);border-color:var(--sage)}
+  ul.check input[type=checkbox]:checked::after{content:"✓";color:#fff;position:absolute;top:-1px;left:3px;font-size:15px;font-weight:700}
+  ul.check li.done label{opacity:.5;text-decoration:line-through}
+  ul.check label{cursor:pointer}
+  ul.check .sub{display:block;font-size:.83rem;color:var(--muted);text-decoration:none!important}
+  ul.check .for{font-size:.68rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;margin-left:6px}
+  .for.b1{background:var(--sage-soft);color:var(--sage)}
+  .for.b3{background:var(--honey-soft);color:#96682f}
+  .for.both{background:#e7efe9;color:var(--sage)}
+
+  .progress{font-size:.8rem;color:var(--muted);margin:2px 0 10px;font-weight:600}
+  .note{background:var(--honey-soft);border-radius:10px;padding:12px 16px;font-size:.9rem;margin:12px 0}
+  .note.warn{background:#f7e8e2;color:#7a3b28}
+  .note b{color:inherit}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+  .btns button{font-family:var(--sans);font-weight:600;font-size:.85rem;padding:10px 18px;border-radius:999px;cursor:pointer;border:1px solid var(--bark)}
+  .btns button.solid{background:var(--bark);color:var(--cream)}
+  .btns button.ghost{background:transparent;color:var(--bark)}
+  .score input{width:46px;padding:5px;border:1px solid var(--line);border-radius:6px;text-align:center;font-family:var(--sans)}
+  .score textarea{width:100%;min-height:52px;border:1px solid var(--line);border-radius:8px;padding:8px;font-family:var(--sans);font-size:.9rem;margin-top:4px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:620px){.two{grid-template-columns:1fr}h1{font-size:2rem}.wrap{padding-bottom:60px}}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);padding:30px 20px;border-top:1px solid var(--line)}
+  @media print{
+    nav,.btns,header.top .tag{display:none}
+    section.tab{display:block!important;page-break-before:always}
+    body{font-size:12px}.card{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Simply Clean — Test Lab</h1>
+  <div class="tag">Option #1 vs Option #3 · the side-by-side that settles it</div>
+</header>
+
+<nav id="nav">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="opt1">① Solvent-Forward</button>
+  <button data-tab="opt3">③ Coconut Sulfate</button>
+  <button data-tab="grocery">🛒 Grocery List</button>
+  <button data-tab="test">🧪 Test &amp; Score</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ================= OVERVIEW ================= -->
+<section class="tab show" id="overview">
+  <h2>What this is</h2>
+  <p>Two honest recipes for the same product — an affordable, granite-safe, grease-cutting all-purpose cleaner — built so you can make both, spray them on the same greasy stove, and pick a winner with your own hands instead of on paper.</p>
+
+  <div class="card">
+    <h3>The only real question</h3>
+    <p>Both are granite-safe and both use <b>one refined ingredient</b>. They differ on one axis:</p>
+    <table>
+      <tr><th>&nbsp;</th><th>① Solvent-Forward</th><th>③ Coconut Sulfate</th></tr>
+      <tr><td><b>Grease power</b></td><td>Moderate — everyday</td><td class="win-3">Stronger — dish-soap tier</td></tr>
+      <tr><td><b>The label</b></td><td class="win-1">"coconut-sugar cleanser" — no scary word</td><td>"sodium coco sulfate" — has the word <i>sulfate</i></td></tr>
+      <tr><td><b>Cost</b></td><td>Pricier surfactant</td><td class="win-3">Cheaper</td></tr>
+      <tr><td><b>Gentleness / glass</b></td><td class="win-1">Milder, streak-free, no film</td><td>Harsher, more foam &amp; residue</td></tr>
+      <tr><td><b>Future dry tablet?</b></td><td>No (liquid only)</td><td class="win-3">Yes (it's a powder)</td></tr>
+    </table>
+    <p style="margin-bottom:0"><b>③ is the better cleaner. ① is the better <i>Simply Living</i> product.</b> The test tells you whether ①'s grease is good enough that you never have to print the word "sulfate."</p>
+  </div>
+
+  <div class="card sage">
+    <h3>How to use this page</h3>
+    <ul class="check">
+      <li><input type="checkbox" data-persist id="ov1"><label for="ov1"><b>Start on the Grocery List</b><span class="sub">One combined shopping trip covers both recipes — overlaps are already merged.</span></label></li>
+      <li><input type="checkbox" data-persist id="ov2"><label for="ov2"><b>Make Option ①</b><span class="sub">Follow its ingredient list + mixing checklist.</span></label></li>
+      <li><input type="checkbox" data-persist id="ov3"><label for="ov3"><b>Make Option ③</b><span class="sub">Same drill on its page.</span></label></li>
+      <li><input type="checkbox" data-persist id="ov4"><label for="ov4"><b>Run the Test &amp; Score</b><span class="sub">Same greasy surface, same glass, same granite. Fill in the scorecard.</span></label></li>
+      <li><input type="checkbox" data-persist id="ov5"><label for="ov5"><b>Decide</b><span class="sub">Use the decision guide at the bottom of Test &amp; Score.</span></label></li>
+    </ul>
+    <div class="btns">
+      <button class="solid" onclick="go('grocery')">🛒 Go to Grocery List</button>
+      <button class="ghost" onclick="resetAll()">Reset all checkboxes</button>
+      <button class="ghost" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+  <p class="note">Everything you check off saves automatically in this browser — close it, come back, your progress is still here.</p>
+</section>
+
+<!-- ================= OPTION 1 ================= -->
+<section class="tab" id="opt1">
+  <span class="pill sage">Option ①</span>
+  <h2>Solvent-Forward</h2>
+  <p><b>water · coconut-sugar cleanser · orange oil.</b> Three ingredients. The gentlest, cleanest-label option — grease comes from the surfactant plus a concentrated citrus-solvent dose. No baking soda (that's what keeps it streak-free and film-free).</p>
+
+  <div class="card sage">
+    <h3>Ingredients to buy</h3>
+    <ul class="check">
+      <li><input type="checkbox" data-persist id="b1i1"><label for="b1i1"><b>Decyl glucoside</b> — 8 oz liquid <span class="sub">The "coconut-sugar cleanser" — your one refined ingredient. Soap-making / cosmetic suppliers: Amazon, Bramble Berry, Wholesale Supplies Plus, Naturally Thinking. (~$12)</span></label></li>
+      <li><input type="checkbox" data-persist id="b1i2"><label for="b1i2"><b>Sweet orange essential oil</b> — 1 oz <span class="sub">The grease solvent + scent. (~$8–12) — shared with Option ③.</span></label></li>
+      <li><input type="checkbox" data-persist id="b1i3"><label for="b1i3"><b>Distilled water</b> — 1 gallon <span class="sub">Fewer stray minerals = a fairer test. (~$1.50) — shared with Option ③.</span></label></li>
+    </ul>
+    <div class="note"><b>Optional grease upgrade:</b> add a small bottle of <b>lauryl glucoside</b> and use it in place of ⅓ of the decyl — it cuts grease a touch harder (same "coconut-sugar cleanser" label). Not required for the test.</div>
+  </div>
+
+  <div class="card">
+    <h3>Two formulations to mix</h3>
+    <p>Make both so you can feel the ceiling. Each fills one <b>16 oz</b> spray bottle. Use warm distilled water.</p>
+
+    <div class="recipe">
+      <h4>①-A · Base <span class="pill sage" style="font-size:.62rem">medium</span></h4>
+      <ul>
+        <li><span>Warm distilled water</span><span class="amt">to 16 oz</span></li>
+        <li><span>Decyl glucoside</span><span class="amt">3 tsp</span></li>
+        <li><span>Sweet orange essential oil</span><span class="amt">35 drops</span></li>
+      </ul>
+    </div>
+    <div class="recipe">
+      <h4>①-B · Boosted <span class="pill honey" style="font-size:.62rem">stronger</span></h4>
+      <ul>
+        <li><span>Warm distilled water</span><span class="amt">to 16 oz</span></li>
+        <li><span>Decyl glucoside</span><span class="amt">4 tsp</span></li>
+        <li><span>Sweet orange essential oil</span><span class="amt">45 drops</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Make it — checklist</h3>
+    <div class="progress" id="p-b1"></div>
+    <ul class="check" data-group="b1">
+      <li><input type="checkbox" data-persist id="b1s1"><label for="b1s1">Label two bottles: <b>①-A</b> and <b>①-B</b> (painter's tape + marker).</label></li>
+      <li><input type="checkbox" data-persist id="b1s2"><label for="b1s2">Fill each about ¾ with <b>warm</b> distilled water.</label></li>
+      <li><input type="checkbox" data-persist id="b1s3"><label for="b1s3">Add the decyl glucoside (3 tsp to A, 4 tsp to B). Swirl gently — don't shake yet (it foams).</label></li>
+      <li><input type="checkbox" data-persist id="b1s4"><label for="b1s4">Add the orange oil last (35 drops to A, 45 to B). Top up to 16 oz. Cap and <b>gently invert</b> to mix.</label></li>
+      <li><input type="checkbox" data-persist id="b1s5"><label for="b1s5">Dip a pH strip: expect ~<b>6–7</b> (near-neutral = granite-safe). Jot it on the label.</label></li>
+      <li><input type="checkbox" data-persist id="b1s6"><label for="b1s6"><b>Check:</b> orange oil should stay dispersed. If it <b>beads on top</b> → add ½ tsp more glucoside and re-mix.</label></li>
+    </ul>
+  </div>
+
+  <div class="note warn"><b>Heads up:</b> mixed, unpreserved, this keeps ~<b>2–4 weeks</b>. Don't mix with any other cleaner. Keep out of reach of kids &amp; pets.</div>
+  <div class="btns"><button class="solid" onclick="go('opt3')">Next: Option ③ →</button><button class="ghost" onclick="go('test')">Skip to Test</button></div>
+</section>
+
+<!-- ================= OPTION 3 ================= -->
+<section class="tab" id="opt3">
+  <span class="pill honey">Option ③</span>
+  <h2>Coconut Sulfate</h2>
+  <p><b>water · sodium coco sulfate · baking soda · orange oil.</b> The stronger, cheaper cleaner. Same granite-safe near-neutral pH — the trade is the word "sulfate" on the label. This test is where you find out if that trade buys you enough extra grease power to be worth it.</p>
+
+  <div class="card honey">
+    <h3>Ingredients to buy</h3>
+    <ul class="check">
+      <li><input type="checkbox" data-persist id="b3i1"><label for="b3i1"><b>Sodium coco sulfate (SCS)</b> — 8 oz powder/needles <span class="sub">Your one refined ingredient. Same soap-making suppliers (Amazon, Bramble Berry, Wholesale Supplies Plus). (~$10–15)</span></label></li>
+      <li><input type="checkbox" data-persist id="b3i2"><label for="b3i2"><b>Baking soda</b> — small box <span class="sub">Gentle grease nudge. Probably already in your pantry.</span></label></li>
+      <li><input type="checkbox" data-persist id="b3i3"><label for="b3i3"><b>Sweet orange essential oil</b> <span class="sub">Same bottle as Option ① — don't buy twice.</span></label></li>
+      <li><input type="checkbox" data-persist id="b3i4"><label for="b3i4"><b>Distilled water</b> <span class="sub">Same gallon as Option ①.</span></label></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Two formulations to mix</h3>
+    <p>Each fills one <b>16 oz</b> bottle. SCS is potent and high-foaming — start on the low side.</p>
+    <div class="recipe">
+      <h4>③-A · Base <span class="pill sage" style="font-size:.62rem">medium</span></h4>
+      <ul>
+        <li><span>Warm distilled water</span><span class="amt">to 16 oz</span></li>
+        <li><span>Sodium coco sulfate</span><span class="amt">1.5 tsp</span></li>
+        <li><span>Baking soda</span><span class="amt">1 tsp</span></li>
+        <li><span>Sweet orange essential oil</span><span class="amt">35 drops</span></li>
+      </ul>
+    </div>
+    <div class="recipe">
+      <h4>③-B · Boosted <span class="pill honey" style="font-size:.62rem">stronger</span></h4>
+      <ul>
+        <li><span>Warm distilled water</span><span class="amt">to 16 oz</span></li>
+        <li><span>Sodium coco sulfate</span><span class="amt">2.5 tsp</span></li>
+        <li><span>Baking soda</span><span class="amt">1 tsp</span></li>
+        <li><span>Sweet orange essential oil</span><span class="amt">45 drops</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Make it — checklist</h3>
+    <div class="progress" id="p-b3"></div>
+    <ul class="check" data-group="b3">
+      <li><input type="checkbox" data-persist id="b3s1"><label for="b3s1">Put on gloves and avoid breathing the powder — <b>measure the SCS over the sink</b>, it's dusty.</label></li>
+      <li><input type="checkbox" data-persist id="b3s2"><label for="b3s2">Label two bottles: <b>③-A</b> and <b>③-B</b>.</label></li>
+      <li><input type="checkbox" data-persist id="b3s3"><label for="b3s3"><b>Dissolve the SCS first:</b> add it to ~1 cup of <b>hot</b> distilled water in each bottle and swirl for ~10 min until clear (SCS is slow — don't rush it).</label></li>
+      <li><input type="checkbox" data-persist id="b3s4"><label for="b3s4">Stir in the baking soda (1 tsp each) until dissolved.</label></li>
+      <li><input type="checkbox" data-persist id="b3s5"><label for="b3s5">Add orange oil (35 / 45 drops). Top up to 16 oz with warm water. Cap and gently invert.</label></li>
+      <li><input type="checkbox" data-persist id="b3s6"><label for="b3s6">Dip a pH strip: expect ~<b>8–9</b>. If it reads above ~10, it's too alkaline for granite — add water. Jot it on the label.</label></li>
+      <li><input type="checkbox" data-persist id="b3s7"><label for="b3s7"><b>Check:</b> if it's a foam volcano when you spray, dilute ③-A down a touch — that's the SCS being strong.</label></li>
+    </ul>
+  </div>
+
+  <div class="note warn"><b>Heads up:</b> SCS powder can irritate eyes/lungs — handle dry powder carefully. Mixed, it keeps ~2–4 weeks. Never mix with bleach or other cleaners.</div>
+  <div class="btns"><button class="solid" onclick="go('test')">Next: Test &amp; Score →</button></div>
+</section>
+
+<!-- ================= GROCERY ================= -->
+<section class="tab" id="grocery">
+  <h2>🛒 Combined grocery list</h2>
+  <p>Everything for <b>both</b> recipes, overlaps already merged. Tags show which option each item feeds. Check as you shop — it saves.</p>
+
+  <div class="card">
+    <h3>Ingredients</h3>
+    <div class="progress" id="p-gi"></div>
+    <ul class="check" data-group="gi">
+      <li><input type="checkbox" data-persist id="g1"><label for="g1"><b>Decyl glucoside</b> — 8 oz liquid <span class="for b1">Opt ①</span><span class="sub">~$12 · soap/cosmetic supplier or Amazon</span></label></li>
+      <li><input type="checkbox" data-persist id="g2"><label for="g2"><b>Sodium coco sulfate (SCS)</b> — 8 oz powder <span class="for b3">Opt ③</span><span class="sub">~$10–15 · same supplier</span></label></li>
+      <li><input type="checkbox" data-persist id="g3"><label for="g3"><b>Baking soda</b> — small box <span class="for b3">Opt ③</span><span class="sub">Pantry / grocery · ~$1</span></label></li>
+      <li><input type="checkbox" data-persist id="g4"><label for="g4"><b>Sweet orange essential oil</b> — 1 oz <span class="for both">Both</span><span class="sub">~$8–12 · one bottle covers all 4 formulations</span></label></li>
+      <li><input type="checkbox" data-persist id="g5"><label for="g5"><b>Distilled water</b> — 1 gallon <span class="for both">Both</span><span class="sub">~$1.50 · grocery store</span></label></li>
+    </ul>
+    <div class="note">Optional: <b>lauryl glucoside</b> (small bottle) if you want to push Option ①'s grease a notch. <span class="for b1">Opt ①</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Tools &amp; equipment</h3>
+    <div class="progress" id="p-gt"></div>
+    <ul class="check" data-group="gt">
+      <li><input type="checkbox" data-persist id="g6"><label for="g6"><b>16 oz spray bottles ×4</b> <span class="for both">Both</span><span class="sub">One per formulation (①-A, ①-B, ③-A, ③-B). Grab 6 if you want spares for re-tests.</span></label></li>
+      <li><input type="checkbox" data-persist id="g7"><label for="g7"><b>Measuring spoons</b> (tsp &amp; tbsp) <span class="for both">Both</span></label></li>
+      <li><input type="checkbox" data-persist id="g8"><label for="g8"><b>pH test strips</b> (0–14) <span class="for both">Both</span><span class="sub">Confirms it's granite-safe. ~$6</span></label></li>
+      <li><input type="checkbox" data-persist id="g9"><label for="g9"><b>Granite test piece</b> <span class="for both">Both</span><span class="sub">A granite tile/sample from a hardware store, a free offcut from any countertop shop, OR an inconspicuous corner of your own counter.</span></label></li>
+      <li><input type="checkbox" data-persist id="g10"><label for="g10"><b>Microfiber cloths ×3–4</b> <span class="for both">Both</span></label></li>
+      <li><input type="checkbox" data-persist id="g11"><label for="g11"><b>Nitrile gloves</b> <span class="for b3">Opt ③</span><span class="sub">For handling the SCS powder.</span></label></li>
+      <li><input type="checkbox" data-persist id="g12"><label for="g12"><b>Small funnel</b> <span class="for both">Both</span><span class="sub">Saves spills pouring into bottles.</span></label></li>
+      <li><input type="checkbox" data-persist id="g13"><label for="g13"><b>Painter's tape + marker</b> <span class="for both">Both</span><span class="sub">Label every bottle — you will lose track otherwise.</span></label></li>
+      <li><input type="checkbox" data-persist id="g14"><label for="g14"><b>Kitchen scale</b> (optional) <span class="for b3">Opt ③</span><span class="sub">SCS is fluffy; grams are more precise than teaspoons if you have one.</span></label></li>
+    </ul>
+  </div>
+  <div class="note"><b>Rough total:</b> ~$35–45 for everything, and you'll have leftover surfactant and oil for several re-batches. The only items unique to one recipe are the two surfactants, the baking soda, and the gloves — everything else is shared.</div>
+  <div class="btns"><button class="solid" onclick="go('opt1')">Start with Option ① →</button><button class="ghost" onclick="window.print()">🖨 Print list</button></div>
+</section>
+
+<!-- ================= TEST ================= -->
+<section class="tab" id="test">
+  <h2>🧪 Test &amp; Score</h2>
+  <p>Same surfaces, same order, back to back — that's the only way the comparison is fair. Do it right after mixing while everything's fresh.</p>
+
+  <div class="card">
+    <h3>The protocol</h3>
+    <ul class="check" data-group="tp">
+      <li><input type="checkbox" data-persist id="t1"><label for="t1">Line up all four bottles, labeled.</label></li>
+      <li><input type="checkbox" data-persist id="t2"><label for="t2"><b>Greasy surface</b> (stovetop / backsplash): spray each on an equally greasy patch → wait <b>1–2 min</b> → wipe once with a clean cloth. Score grease-cut below.</label></li>
+      <li><input type="checkbox" data-persist id="t3"><label for="t3"><b>Glass / mirror:</b> spray &amp; wipe each. Look for streaks and film as it dries.</label></li>
+      <li><input type="checkbox" data-persist id="t4"><label for="t4"><b>Granite piece:</b> spray, wait a few minutes, wipe. Check for dulling or white residue — even on the boosted versions.</label></li>
+      <li><input type="checkbox" data-persist id="t5"><label for="t5">Note the <b>feel</b>: foam amount, how easily it wiped off, the smell.</label></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Scorecard <span class="pill grey">1 = poor · 5 = great</span></h3>
+    <p class="progress">Saved automatically as you type.</p>
+    <table class="score">
+      <tr><th>Formulation</th><th>Grease</th><th>Streak-free glass</th><th>No residue</th><th>Granite OK?</th></tr>
+      <tr><td><b>①-A</b> base</td><td><input data-persist id="sc1a_g"></td><td><input data-persist id="sc1a_s"></td><td><input data-persist id="sc1a_r"></td><td><input data-persist id="sc1a_gr"></td></tr>
+      <tr><td><b>①-B</b> boosted</td><td><input data-persist id="sc1b_g"></td><td><input data-persist id="sc1b_s"></td><td><input data-persist id="sc1b_r"></td><td><input data-persist id="sc1b_gr"></td></tr>
+      <tr><td><b>③-A</b> base</td><td><input data-persist id="sc3a_g"></td><td><input data-persist id="sc3a_s"></td><td><input data-persist id="sc3a_r"></td><td><input data-persist id="sc3a_gr"></td></tr>
+      <tr><td><b>③-B</b> boosted</td><td><input data-persist id="sc3b_g"></td><td><input data-persist id="sc3b_s"></td><td><input data-persist id="sc3b_r"></td><td><input data-persist id="sc3b_gr"></td></tr>
+    </table>
+    <label class="score"><b>Notes</b> (smell, foam, surprises):
+      <textarea data-persist id="sc_notes"></textarea></label>
+  </div>
+
+  <div class="card sage">
+    <h3>Decision guide</h3>
+    <ul class="check" data-group="dg">
+      <li><input type="checkbox" data-persist id="d1"><label for="d1"><b>If ① clears your grease bar</b> → take Option ①. You get the clean label, no sulfate, no debate. <b>Best case.</b></label></li>
+      <li><input type="checkbox" data-persist id="d2"><label for="d2"><b>If ③ is clearly better AND that grease gap matters more than the word "sulfate"</b> → take Option ③ and own the label honestly (coconut-derived, dioxane-free).</label></li>
+      <li><input type="checkbox" data-persist id="d3"><label for="d3"><b>If ① is too weak but you won't print "sulfate"</b> → we play the enzyme card next (lipase) to close the grease gap without the word. Tell me and I'll spec it.</label></li>
+    </ul>
+    <p style="margin-bottom:0">Whatever wins, the next steps are the same: lock the concentrate dilution ratio, sort hard-water performance, and — before anything is ever sold — a professional stability/challenge test.</p>
+  </div>
+  <div class="btns"><button class="ghost" onclick="go('overview')">↑ Back to Overview</button><button class="ghost" onclick="window.print()">🖨 Print everything</button></div>
+</section>
+
+</div>
+
+<footer>
+  Simply Living · internal formulation test tool · not for public/customer use<br>
+  Made from simple ingredients you can actually read.
+</footer>
+
+<script>
+  // ---- tab nav ----
+  const tabs=document.querySelectorAll('section.tab');
+  const btns=document.querySelectorAll('#nav button');
+  function go(id){
+    tabs.forEach(t=>t.classList.toggle('show',t.id===id));
+    btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+
+  // ---- progress groups (defined before the persistence loop uses them) ----
+  const groups={'b1':'p-b1','b3':'p-b3','gi':'p-gi','gt':'p-gt'};
+
+  // ---- persistence ----
+  const KEY='simplyclean_testlab_v1';
+  function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+  function save(state){localStorage.setItem(KEY,JSON.stringify(state))}
+  let state=load();
+
+  document.querySelectorAll('[data-persist]').forEach(el=>{
+    const id=el.id;
+    if(el.type==='checkbox'){
+      if(state[id]) el.checked=true;
+      el.addEventListener('change',()=>{state[id]=el.checked;save(state);refresh(el)});
+    }else{ // text/textarea inputs
+      if(state[id]!==undefined) el.value=state[id];
+      el.addEventListener('input',()=>{state[id]=el.value;save(state)});
+    }
+    refresh(el);
+  });
+
+  function refresh(el){
+    if(el.type==='checkbox'){
+      const li=el.closest('li'); if(li) li.classList.toggle('done',el.checked);
+    }
+    updateProgress();
+  }
+
+  // ---- progress counters ----
+  function updateProgress(){
+    for(const g in groups){
+      const list=document.querySelector(`[data-group="${g}"]`);
+      const el=document.getElementById(groups[g]);
+      if(!list||!el) continue;
+      const boxes=list.querySelectorAll('input[type=checkbox]');
+      const done=[...boxes].filter(b=>b.checked).length;
+      el.textContent=`${done} of ${boxes.length} done`;
+    }
+  }
+
+  function resetAll(){
+    if(!confirm('Clear every checkbox and score on this page?')) return;
+    state={};save(state);
+    document.querySelectorAll('[data-persist]').forEach(el=>{
+      if(el.type==='checkbox') el.checked=false; else el.value='';
+      refresh(el);
+    });
+  }
+  updateProgress();
+</script>
+</body>
+</html>
